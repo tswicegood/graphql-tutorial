@@ -23,12 +23,12 @@ class GraphqlController < ApplicationController
 
     crypt = ActiveSupport::MessageEncryptor.new(
       # TODO This byteslice call happens multiple places. DRY it?
-      Rails.application.secrets.secret_key_base.byteslice(1..31)
+      Rails.application.secrets.secret_key_base.byteslice(0..31)
     )
-    token = crypt.decrypt_and_verify_session session[:token]
+    token = crypt.decrypt_and_verify session[:token]
     user_id = token.gsub('user-id:', '').to_i
-    User.find_by user_id
-  rescue ActiveSupport::MessageVerifer::InvalidSignature
+    User.find_by id: user_id
+  rescue ActiveSupport::MessageVerifier::InvalidSignature
     # TODO Log?
     nil
   end

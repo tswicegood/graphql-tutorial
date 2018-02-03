@@ -15,7 +15,7 @@ class Resolvers::SignInUserTest < ActiveSupport::TestCase
   end
 
   setup do
-    @cxt = { cookies: {} }
+    @cxt = { session: {},  cookies: {} }
     @user = User.create!(
       name: "test",
       email: "test@example.com",
@@ -32,10 +32,10 @@ class Resolvers::SignInUserTest < ActiveSupport::TestCase
   end
 
   test 'stores token in session' do
-    assert_not @cxt[:token].present?, 'smoke test'
+    assert @cxt[:session][:token].nil?, "smoke test"
 
     result = perform_signin
-    assert @cxt[:token].present?
+    assert @cxt[:session][:token].present?
   end
 
   test 'handles no credentials' do

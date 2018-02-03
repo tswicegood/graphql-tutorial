@@ -1,8 +1,16 @@
 require 'test_helper'
 
 class Resolvers::CreateLinkTest < ActiveSupport::TestCase
+  def current_user
+    User.create!(
+      name: "test",
+      email: "test@example.com",
+      password: "test"
+    )
+  end
+
   def perform(args = {})
-    Resolvers::CreateLink.new.call(nil, args, {})
+    Resolvers::CreateLink.new.call(nil, args, { session: {}, current_user: current_user })
   end
 
   test 'creating new link' do
