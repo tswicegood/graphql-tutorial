@@ -2,10 +2,20 @@ require 'test_helper'
 
 class Resolvers::SignInUserTest < ActiveSupport::TestCase
   def perform(args = {})
-    Resolvers::SignInUser.new.call(nil, args, { cookies: {}})
+    Resolvers::SignInUser.new.call(nil, args, @cxt)
+  end
+
+  def perform_signin
+    perform(
+      email: {
+        email: @user.email,
+        password: @user.password
+      }
+    )
   end
 
   setup do
+    @cxt = { cookies: {} }
     @user = User.create!(
       name: "test",
       email: "test@example.com",
@@ -14,16 +24,18 @@ class Resolvers::SignInUserTest < ActiveSupport::TestCase
   end
 
   test 'creates a token' do
-    result = perform(
-      email: {
-        email: @user.email,
-        password: @user.password
-      }
-    )
+    result = perform_signin
 
     assert result.present?
     assert result.token.present?
     assert_equal result.user, @user
+  end
+
+  test 'stores token in session' do
+    assert_not @cxt[:token].present?, 'smoke test'
+
+    result = perform_signin
+    assert @cxt[:token].present?
   end
 
   test 'handles no credentials' do
